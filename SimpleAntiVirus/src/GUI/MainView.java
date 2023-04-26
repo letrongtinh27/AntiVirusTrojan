@@ -18,11 +18,20 @@ public class MainView extends JFrame {
      */
     private static final long serialVersionUID = 1L;
 
-    JButton btn_scan_all, btn_scan_simple, btn_view, btn_update, btn_quit, btn_deltete, btn_search;
+    JButton btn_scan_all,
+    btn_scan_simple,
+    btn_view, btn_update,
+    btn_quit, btn_deltete,
+    btn_search, btn_auto_update,
+    cancelButton;
     JTextField field_search;
     JTable table_view;
     JScrollPane sp;
     JMenuItem jMenuItem_file, jMenuItem_quit;
+    JDialog progressDialog;
+    JProgressBar progressBar;
+    JLabel jLabel_date;
+    JLabel progressLabel;
     VirusAnalyzer model;
     DefaultTableModel table_model;
 
@@ -84,20 +93,27 @@ public class MainView extends JFrame {
         JPanel jPanel_left = new JPanel();
         jPanel_left.setPreferredSize(new Dimension(120, 500));
         jPanel_left.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 15));
-        btn_view = new JButton("Xem kết quả");
+        btn_view = new JButton("View result");
         btn_view.setPreferredSize(new Dimension(100, 30));
         btn_view.addActionListener(ac);
-        btn_update = new JButton("Cập nhật");
+        btn_update = new JButton("Update");
         btn_update.setPreferredSize(new Dimension(100, 30));
-        btn_quit = new JButton("Thoát");
+        btn_update.addActionListener(ac);
+        
+        btn_auto_update = new JButton("Auto Update");
+		btn_auto_update.setPreferredSize(new Dimension(100, 30));
+		btn_auto_update.addActionListener(ac);
+        
+        btn_quit = new JButton("Quit");
         btn_quit.setPreferredSize(new Dimension(100, 30));
         btn_quit.addActionListener(ac);
         jPanel_left.add(btn_view);
         jPanel_left.add(btn_update);
+        jPanel_left.add(btn_auto_update);
         jPanel_left.add(btn_quit);
 
         JLabel jLabel_name = new JLabel("Simple Anti-Virus");
-        JLabel jLabel_date = new JLabel("14/4/2023-v0.1");
+        jLabel_date = new JLabel("14/4/2023-v0.1");
         jPanel_left.add(jLabel_name);
         jPanel_left.add(jLabel_date);
 
@@ -155,14 +171,14 @@ public class MainView extends JFrame {
 
         // *20130340
         field_search = new JTextField(20);
-        btn_search = new JButton("Tìm kiếm File");
+        btn_search = new JButton("Search");
         btn_search.addActionListener(ac);
 
         JPanel searchPanel = new JPanel();
         searchPanel.add(field_search);
         searchPanel.add(btn_search);
         // 20130340*
-        btn_deltete = new JButton("Xoá");
+        btn_deltete = new JButton("Delete");
         btn_deltete.addActionListener(ac);
 
         jPanel_bottom.add(searchPanel); // 20130340
@@ -176,6 +192,24 @@ public class MainView extends JFrame {
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
+    }
+    
+    public void jProgress() {
+        progressDialog = new JDialog(this, "Scanning...", true);
+        progressBar = new JProgressBar(0, 100);
+        progressLabel = new JLabel("Please wait...");
+        cancelButton = new JButton("Cancel");
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new FlowLayout());
+        panel.add(BorderLayout.CENTER, progressBar);
+        panel.add(BorderLayout.NORTH, progressLabel);
+        panel.add(BorderLayout.SOUTH, cancelButton);
+
+        progressDialog.add(panel);
+        progressDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        progressDialog.setSize(new Dimension(250, 85));
+        progressDialog.setLocationRelativeTo(this);
     }
 
     public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
