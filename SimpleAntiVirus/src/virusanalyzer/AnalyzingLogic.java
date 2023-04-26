@@ -31,6 +31,7 @@ public class AnalyzingLogic {
 
             byte[] digest = md.digest();
             md5Checksum = DatatypeConverter.printHexBinary(digest).toLowerCase();
+            fis.close();
         } catch (NoSuchAlgorithmException e) {
         } catch (Exception e) {
         }
