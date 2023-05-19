@@ -14,9 +14,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,7 +30,7 @@ public class Controller implements ActionListener, MouseListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (view.btn_scan_simple == e.getSource()) {
-            runProgress(false);
+        	scanfolder();
         }
         if (view.btn_scan_all == e.getSource()) {
             scanSystem();
@@ -86,84 +83,81 @@ public class Controller implements ActionListener, MouseListener {
             }
         }
         if (view.btn_update == e.getSource()) {
-            // Hệ thống kiểm tra nếu có phiên bản mới thì thông báo cho người dùng
-            if (getVersion().equals(getLatestVersion())) {
-                JOptionPane.showMessageDialog(null, "Bạn đang ở phiên bản mới nhất");
-            } else {
-                // Hiển thị đường dẫn đến tệp cập nhật mà người dùng chọn
-                JFileChooser fileChooser = new JFileChooser();
-                int result = fileChooser.showOpenDialog(null);
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = fileChooser.getSelectedFile();
-                    String filePath = selectedFile.getAbsolutePath();
-                    System.out.println(filePath);
-                    // Thực hiện cập nhật tệp tin đích
-                    File targetFile = new File("VirusDefinition/virusDef.txt"); // đích
-                    if (targetFile.exists()) {
-                        // Hiện thị thông báo bạn có muôn cập nhật
-                        int option = JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn cập nhật không?");
-                        if (option == JOptionPane.YES_OPTION) {
-                            // Nếu người dùng chọn thay thế, thực hiện thay thế tệp tin đích bằng tệp tin
-                            // người dùng đã chọn
-                            try {
-                                // sau khi hoàn tất hiển thị thông báo cập nhật thành công
-                                replaceFile(selectedFile, targetFile);
-                                JOptionPane.showMessageDialog(null, "Đã cập nhật tệp tin thành công!");
-                            } catch (IOException ex) {
-                                JOptionPane.showMessageDialog(null, "Lỗi: " + ex.getMessage());
-                            }
-                        }
-                    } else {
-                        // Nếu tệp tin đích chưa tồn tại, thực hiện tạo mới tệp tin đích và ghi đường
-                        // dẫn đến tệp tin người dùng đã chọn vào tệp tin đích
-                        try {
-                            replaceFile(selectedFile, targetFile);
-                            JOptionPane.showMessageDialog(null, "Đã cập nhật tệp tin thành công!");
-                        } catch (IOException ex) {
-                            JOptionPane.showMessageDialog(null, "Lỗi: " + ex.getMessage());
-                        }
-                    }
-                }
+			// Hệ thống kiểm tra nếu có phiên bản mới thì thông báo cho người dùng
+			if (getVersion().equals(getLatestVersion())) {
+				JOptionPane.showMessageDialog(null, "Bạn đang ở phiên bản mới nhất");
+			} else {
+				// Hiển thị đường dẫn đến tệp cập nhật mà người dùng chọn
+				JFileChooser fileChooser = new JFileChooser();
+				int result = fileChooser.showOpenDialog(null);
+				if (result == JFileChooser.APPROVE_OPTION) {
+					File selectedFile = fileChooser.getSelectedFile();
+					String filePath = selectedFile.getAbsolutePath();
+					System.out.println(filePath);
+					File targetFile = new File("VirusDefinition/virusDef.txt"); // đích
+					if (targetFile.exists()) {
+						// Hiện thị thông báo bạn có muôn cập nhật
+						int option = JOptionPane.showConfirmDialog(null, "Bạn có chắc muốn cập nhật không?");
+						if (option == JOptionPane.YES_OPTION) {
+							// Nếu người dùng chọn thay thế, thực hiện thay thế tệp tin đích bằng tệp tin
+							// người dùng đã chọn
+							try {
+								// 1.5 Gọi hàm UpdateApp đưa đường dẫn của file nguồn đến file đích
+								VirusAnalyzer.UpdateApp(selectedFile, targetFile);
+								view.jLabel_date.setText(getLatestVersion());
+								// 1.6 Hiện thị thông báo bạn có muôn cập nhật
+								JOptionPane.showMessageDialog(null, "Đã cập nhật tệp tin thành công!");
+							} catch (IOException ex) {
+								JOptionPane.showMessageDialog(null, "Lỗi: " + ex.getMessage());
+							}
+						}
+					} else {
 
-            }
-        }
+						try {
+							// 1.6 Hiện thị thông báo bạn có muôn cập nhật
+							// Nếu tệp tin đích chưa tồn tại, thực hiện tạo mới tệp tin đích và ghi đường
+							// dẫn đến tệp tin người dùng đã chọn vào tệp tin đích
+							VirusAnalyzer.UpdateApp(selectedFile, targetFile);
+							view.jLabel_date.setText(getLatestVersion());
+							JOptionPane.showMessageDialog(null, "Đã cập nhật tệp tin thành công!");
+						} catch (IOException ex) {
+							JOptionPane.showMessageDialog(null, "Lỗi: " + ex.getMessage());
+						}
+					}
+				}
+
+			}
 
         // Cập nhật tự động
         if (view.btn_auto_update == e.getSource()) {
-            // Hệ thống kiểm tra nếu có phiên bản mới thì thông báo cho người dùng
-            if (getVersion().equals(getLatestVersion())) {
-                JOptionPane.showMessageDialog(null, "Bạn đang ở phiên bản mới nhất");
-            } else {
-                // Người dùng chọn nút cập nhật tự động
-                String fileUrl = "https://www.mediafire.com/file/r6azh3lha3vh20l/virusDef.txt/file"; // Đường dẫn đến //
-                // file cần tải
-                String saveDir = "C:\\Users\\tinh\\Downloads"; // Thư mục lưu file
-                try {
-                    // Hệ thống sẽ tự động kiểm tra phiên bản hiện tại và nếu có phiên bản mới hệ
-                    // thống sẽ tự động tải về và tiến hành cập nhật
-                    URL url = new URL(fileUrl);
-                    URLConnection conn = url.openConnection();
-                    InputStream in = conn.getInputStream();
-                    FileOutputStream out = new FileOutputStream(saveDir);
-                    File selectedFile = new File(saveDir);
-                    byte[] buffer = new byte[1024];
-                    int length;
-                    while ((length = in.read(buffer)) > 0) {
-                        out.write(buffer, 0, length);
-                    }
+			// Hệ thống kiểm tra nếu có phiên bản mới thì thông báo cho người dùng
+			if (getVersion().equals(getLatestVersion())) {
+				JOptionPane.showMessageDialog(null, "Bạn đang ở phiên bản mới nhất");
+			} else {
+				// Người dùng chọn nút cập nhật tự động
+				String fileUrl = "https://www.mediafire.com/file/r6azh3lha3vh20l/virusDef.txt/file"; // Đường dẫn đến //
+				// file cần tải
+				String saveDir = "D:\\visu.txt"; // Thư mục lưu file
+				try {
+					// Hệ thống sẽ tự động kiểm tra phiên bản hiện tại và nếu có phiên bản mới hệ
+					// thống sẽ tự động tải về và tiến hành cập nhật
 
-                    in.close();
-                    out.close();
-                    File targetFile = new File("VirusDefinition/virusDef.txt"); // đích
-                    replaceFile(selectedFile, targetFile);
-                    // sau khi hoàn tất hiển thị thông báo cập nhật thành công
-                    JOptionPane.showMessageDialog(null, "Update successful!");
-                    System.out.println("Download successful!");
-                } catch (Exception e1) {
-                    JOptionPane.showMessageDialog(null, "Update failed, Check your network");
-                    System.out.println("Lỗi: " + e1.getMessage());
-                }
-            }
+					File selectedFile = new File(saveDir);
+					File targetFile = new File("VirusDefinition/virusDef.txt"); // đích
+					// 2.5 Tiến hành cài đặt file virus từ trên mạng
+					VirusAnalyzer.downloadAndSaveFile(fileUrl, saveDir);
+					// 2.6 Gọi hàm UpdateApp đưa đường dẫn của file nguồn đến file đích
+					VirusAnalyzer.UpdateApp(selectedFile, targetFile);
+					view.jLabel_date.setText(getLatestVersion());
+					// 2.7 sau khi hoàn tất hiển thị thông báo cập nhật thành công
+					JOptionPane.showMessageDialog(null, "Update successful!");
+					System.out.println("Download successful!");
+				} catch (Exception e1) {
+					JOptionPane.showMessageDialog(null, "Update failed, Check your network");
+					System.out.println("Lỗi: " + e1.getMessage());
+				}
+			}
+		}
         }
     }
 
@@ -202,6 +196,10 @@ public class Controller implements ActionListener, MouseListener {
     private String getLatestVersion() {
         // TODO Auto-generated method stub
         return "14/5/2023-v0.2";
+    }
+    
+    public void scanfolder() {
+    	runProgress(false);
     }
 
     public void scanSystem() {
