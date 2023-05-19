@@ -19,18 +19,19 @@ public class MainView extends JFrame {
     private static final long serialVersionUID = 1L;
 
     JButton btn_scan_all,
-    btn_scan_simple,
-    btn_view, btn_update,
-    btn_quit, btn_deltete,
-    btn_search, btn_auto_update,
-    cancelButton;
+            btn_scan_simple,
+            btn_view, btn_update,
+            btn_quit, btn_deltete,
+            btn_search, btn_auto_update,
+            cancelButton;
+    JCheckBox checkbox;
     JTextField field_search;
     JTable table_view;
     JScrollPane sp;
     JMenuItem jMenuItem_file, jMenuItem_quit;
     JDialog progressDialog;
     JProgressBar progressBar;
-    JLabel jLabel_date;
+    JLabel jLabel_date, lb_all;
     JLabel progressLabel;
     VirusAnalyzer model;
     DefaultTableModel table_model;
@@ -99,11 +100,11 @@ public class MainView extends JFrame {
         btn_update = new JButton("Update");
         btn_update.setPreferredSize(new Dimension(100, 30));
         btn_update.addActionListener(ac);
-        
+
         btn_auto_update = new JButton("Auto Update");
-		btn_auto_update.setPreferredSize(new Dimension(100, 30));
-		btn_auto_update.addActionListener(ac);
-        
+        btn_auto_update.setPreferredSize(new Dimension(100, 30));
+        btn_auto_update.addActionListener(ac);
+
         btn_quit = new JButton("Quit");
         btn_quit.setPreferredSize(new Dimension(100, 30));
         btn_quit.addActionListener(ac);
@@ -160,9 +161,20 @@ public class MainView extends JFrame {
         column.setPreferredWidth(300);
 
         sp = new JScrollPane();
-        sp.setPreferredSize(new Dimension(550, 260));
+        sp.setPreferredSize(new Dimension(550, 255));
         sp.setViewportView(table_view);
-        jPanel_center.add(sp);
+        // 20130340
+        JPanel pan = new JPanel();
+        pan.setPreferredSize(new Dimension(100, 30));
+        lb_all = new JLabel("Select all");
+        checkbox = new JCheckBox();
+        checkbox.addActionListener(ac);
+        pan.add(checkbox);
+        pan.add(lb_all);
+
+        jPanel_center.setLayout(new BorderLayout());
+        jPanel_center.add(sp, BorderLayout.NORTH);
+        jPanel_center.add(pan, BorderLayout.EAST);
 
         JPanel jPanel_bottom = new JPanel();
         jPanel_bottom.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 1));
@@ -193,7 +205,7 @@ public class MainView extends JFrame {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
     }
-    
+
     public void jProgress() {
         progressDialog = new JDialog(this, "Scanning...", true);
         progressBar = new JProgressBar(0, 100);
